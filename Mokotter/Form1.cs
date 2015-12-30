@@ -21,6 +21,7 @@ namespace PseudOfficial
             InitializeComponent();
 
             var settings = Settings.GetInstance();
+            settings.Load();
             _auth = new OAuth(settings);
         }
 

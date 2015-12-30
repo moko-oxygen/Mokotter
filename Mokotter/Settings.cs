@@ -31,29 +31,54 @@ namespace PseudOfficial
         public string UserID { get; set; }
         public string ScreenName { get; set; }
 
-        private Settings()
-        {
-            if (!File.Exists(SETTING_FILE_PATH))
-            {
-                Save();
-                return;
-            }
-            XmlSerializer serializer = new XmlSerializer(typeof(Settings));
-            var fs = new FileStream(SETTING_FILE_PATH, FileMode.Open);
-            settings = (Settings)serializer.Deserialize(fs);
-            fs.Close();
-        }
+        private Settings() { }
 
         public static Settings GetInstance()
         {
             return settings;
         }
 
+        public void Load()
+        {
+            if (!File.Exists(SETTING_FILE_PATH))
+            {
+                return;
+            }
+            XmlSerializer serializer = new XmlSerializer(typeof(Settings));
+            var fs = new FileStream(SETTING_FILE_PATH, FileMode.Open);
+
+            try
+            {
+                var tmpSettings = (Settings)serializer.Deserialize(fs);
+
+                ConsumerKey = tmpSettings.ConsumerKey;
+                ConsumerSecret = tmpSettings.ConsumerSecret;
+                RequestToken = tmpSettings.RequestToken;
+                RequestTokenSecret = tmpSettings.RequestTokenSecret;
+                AccessToken = tmpSettings.AccessToken;
+                AccessTokenSecret = tmpSettings.AccessTokenSecret;
+                UserID = tmpSettings.UserID;
+                ScreenName = tmpSettings.ScreenName;
+            }
+            catch(InvalidOperationException)
+            {
+
+            }
+            catch (IOException)
+            {
+                
+            }
+            finally
+            {
+                fs.Close();
+            }
+        }
+
         public void Save()
         {
             XmlSerializer serializer = new XmlSerializer(typeof(Settings));
             FileStream fs = new FileStream(SETTING_FILE_PATH, FileMode.Create);
-            serializer.Serialize(fs, settings);
+            serializer.Serialize(fs, this);
             fs.Close();
         }
     }
